@@ -7,7 +7,6 @@
 :set showcmd " 右下角显示命令
 :set nocompatible  " 去掉有关vi一致性模式,避免操作习惯上的局限.
 :set scrolloff=5
-:set backspace=indent,eol,start " Backspace键用不了,或者时灵时不灵.所以主动配置
 :set laststatus=2   " 1=启动显示状态行, 2=总是显示状态行
 :set wildmenu  " 使用Tab键补全时,在状态栏显示匹配的列表
 :set showmatch  " 高亮显示匹配的括号
@@ -15,7 +14,6 @@
 :set ignorecase                      " 搜索时默认忽略大小写
 :set smartcase                       " 搜索时智能匹配大小写
 :syntax enable  " 开启语法高亮
-:filetype plugin indent on  " 检测文件类型,并载入文件类型插件,为特定文件类型载入相关缩进文件
 :set shiftwidth=4 " 自动缩进时,缩进长度为4 
 :set encoding=utf-8  
 :set cursorline   " 突出显示当前行
@@ -80,6 +78,10 @@
 :map tn :+tabnext<CR>
 :map tp :-tabnext<CR>
 
+set shortmess=a
+set cmdheight=2
+syntax on
+
 "=== Plug ==="
 call plug#begin()
 Plug 'mhinz/vim-startify'
@@ -88,10 +90,19 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'preservim/nerdtree'
-Plug 'SirVer/ultisnips'
 Plug 'jiangmiao/auto-pairs'
+Plug 'luochen1990/rainbow'
+Plug 'Yggdroot/indentLine'
+Plug 'drinks5/nvim-yapf-formater'
 call plug#end()
-	 
+
+"===rainbow==="
+let g:rainbow_active = 1
+
+"===indentLine==="
+let g:indent_guides_guide_size            = 1  " 指定对齐线的尺寸
+let g:indent_guides_start_level           = 2  " 从第二层开始可视化显示缩进
+
 "===coc-config==="
 set hidden
 set signcolumn=number
@@ -154,10 +165,10 @@ autocmd BufNewFile *.cpp,*.[ch],*.sh,*.rb,*.java,*.py exec ":call SetTitle()"
 func SetTitle() 
 	"如果文件类型为.sh文件 
 	if &filetype == 'sh' 
-		call setline(1,"\#!/bin/bash") 
+		call setline(1,"thexx") 
 		call append(line("."), "") 
     elseif &filetype == 'python'
-        call setline(1,"#!/usr/bin/env python")
+        call setline(1,"# thexx")
         call append(line("."),"# coding=utf-8")
 	    call append(line(".")+1, "") 
 
@@ -204,20 +215,23 @@ func! CompileRunGcc()
 	exec "w"
 	if &filetype == 'c'
 		exec "!g++ % -o %<"
-		exec "!time ./%<"
+		:sp
 		:term %<
 	elseif &filetype == 'cpp'
-		exec "!g++ % -std=c++17 -o %<"
-		exec "!time ./%<"
+		exec "!g++ -std=c++17 -Wall % -o %<"
+		:sp
 		:term %<
 	elseif &filetype == 'java' 
 		exec "!javac %" 
-		exec "!time java %<"
+		exec "!java %<"
+		:sp
+    	:res -5
 		:term %<
 	elseif &filetype == 'sh'
-		:!time bash %
+		:!./%
 	elseif &filetype == 'python'
-		exec "!time python3.11 %"
+		:sp
+		:res -5
 		:term %<
     elseif &filetype == 'html'
         exec "!firefox % &"
@@ -229,3 +243,22 @@ func! CompileRunGcc()
         exec "!firefox %.html &"
 	endif
 endfunc
+"===nerdtree==="
+"autocmd vimenter * NERDTree  "自动开启Nerdtree
+let g:NERDTreeWinSize = 25 "设定 NERDTree 视窗大小
+let NERDTreeShowBookmarks=1  " 开启Nerdtree时自动显示Bookmarks
+"打开vim时如果没有文件自动打开NERDTree
+" autocmd vimenter * if !argc()|NERDTree|endif
+"当NERDTree为剩下的唯一窗口时自动关闭
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+" 设置树的显示图标
+let g:NERDTreeDirArrowExpandable = '+'
+let g:NERDTreeDirArrowCollapsible = '-'
+let NERDTreeIgnore = ['.pyc$']  " 过滤所有.pyc文件不显示
+let g:NERDTreeShowLineNumbers=0 " 是否显示行号
+let g:NERDTreeHidden=0     "不显示隐藏文件
+""Making it prettier
+let NERDTreeMinimalUI = 1
+let NERDTreeDirArrows = 1
+nnoremap <F3> :NERDTreeToggle<CR> " 开启/关闭nerdtree快捷键
+

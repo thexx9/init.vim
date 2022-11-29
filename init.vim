@@ -125,8 +125,8 @@ endfunction
 
 inoremap <silent><expr> <c-r> coc#refresh()
 
-nmap <silent>- <Plug>(coc-diagnostic-prev)
-nmap <silent>= <Plug>(coc-diagnostic-next)
+nmap <silent>[ <Plug>(coc-diagnostic-prev)
+nmap <silent>] <Plug>(coc-diagnostic-next)
 
 nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
@@ -236,8 +236,8 @@ func! CompileRunGcc()
     elseif &filetype == 'html'
         exec "!firefox % &"
     elseif &filetype == 'go'
-"        exec "!go build %<"
-        exec "!time go run %"
+		:vsp
+		:term go run %
     elseif &filetype == 'mkd'
         exec "!~/.vim/markdown.pl % > %.html &"
         exec "!firefox %.html &"
